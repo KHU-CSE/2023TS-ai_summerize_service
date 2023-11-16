@@ -1,0 +1,6 @@
+numpy
+nltk
+transformers
+torch
+python-dotenv
+pinecone

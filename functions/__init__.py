@@ -1,12 +1,19 @@
-try:
-    from .context_spliter import *
-    from .embedder import *
-    from .pinecone_functions import *
-    from .normalizer import *
-    import numpy as np
-    print("Modules loaded successfully")
-except Exception as e:
-    print("Loading failed :",e)
+from .context_spliter import *
+from .embedder import *
+from .pinecone_functions import *
+from .normalizer import *
+from .model import *
+import numpy as np
+
+#형태소 분석기 앙상블을 위한 객체 
+from konlpy.tag import Hannanum,Kkma,Komoran,Okt
+hannanum = Hannanum()
+kkma = Kkma()
+komoran = Komoran()
+okt = Okt()
+
+print("Modules loaded successfully")
+
 
 def Context_to_Database(context : str,context_id : str,user_id : str) -> bool: 
     """
@@ -57,13 +64,13 @@ def find_Contexts_related_to_Question(question : str,top_k : int,user_id : str) 
 def majority_vote(list_of_context_ids :list) -> str:
     """
     주어진 list_of_context_ids에서 가장 많이 등장하는 요소를 반환.
-    find_Contexts_related_to_Question' 함수와 함께 사용.
+    횟수가 중복될 경우 사전 순으로 앞에 있는 하나만 반환.
 
     Args:
-        list_of_context_ids (list): context_id 문자열로 이루어진 리스트
+        list_of_context_ids (list): 문자열을 요소로 가지는 리스트
 
     Returns:
-        str: 가장 많이 등장하는 context_id 문자열
+        str: 가장 많이 등장하는 문자열을 반환.
     """
     arr = np.array(list_of_context_ids)
     unique_elements, counts = np.unique(arr, return_counts=True)
@@ -71,3 +78,23 @@ def majority_vote(list_of_context_ids :list) -> str:
     sorted_unique_elements = unique_elements[sorted_indices]
     return sorted_unique_elements[0]
 
+def postposition_removal_ensemble(model_answer : str) -> list:
+    """
+    4가지 형태소 분석기 (hannanum,kkma,komoran,okt)를 앙상블하여 조사를 제거함.
+    각 형태소 분석기가 추출한 명사들을 리스트에 담아 반환.
+    majority_vote와 함께 사용하여 앙상블을 진행.
+    
+    e.g.) "경희대학교는" -> ['경희대학교', '경희대', '경희대학교', '학교', '경희대학교', '경희대학교']
+
+    Args:
+        model_answer (str): 명사를 추출할 한국어 텍스트 문자열.
+
+    Returns:
+        입력 텍스트에서 추출된 명사들이 담긴 리스트.
+    """
+    nouns = []
+    nouns += hannanum.nouns(model_answer)
+    nouns += kkma.nouns(model_answer)
+    nouns += komoran.nouns(model_answer)
+    nouns += okt.nouns(model_answer)
+    return nouns

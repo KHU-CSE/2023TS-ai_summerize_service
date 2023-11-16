@@ -1,7 +1,12 @@
 import pinecone
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+api_key = os.getenv("PINECONE_API_KEY")
 
 pinecone.init(
-    api_key="aab63623-aa23-48f1-a411-774cb43379b9",
+    api_key=api_key,
     environment="gcp-starter" )
 index_name = "ask-everything" 
 index = pinecone.Index(index_name) #client instance
