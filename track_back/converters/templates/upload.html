@@ -1,0 +1,16 @@
+<!-- templates/upload.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Documents</title>
+</head>
+<body>
+    <h2>Upload Documents</h2>
+    <form method="post" action="{% url 'upload_document' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="files" multiple>
+        <button type="submit">Upload</button>
+    </form>
+</body>
+</html>

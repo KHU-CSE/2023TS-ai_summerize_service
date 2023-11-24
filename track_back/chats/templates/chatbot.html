@@ -1,0 +1,44 @@
+<!-- templates/chatbot.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hugging Face Chatbot</title>
+</head>
+<body>
+    <h1>Hugging Face Chatbot</h1>
+    <form id="chatForm">
+        {% csrf_token %}
+        <label for="question">질문:</label>
+        <input type="text" id="question" required><br>
+        <label for="context">문맥:</label>
+        <input type="text" id="context"><br>
+        <button type="button" onclick="submitChat()">질문하기</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        function submitChat() {
+            var question = document.getElementById('question').value;
+            var context = document.getElementById('context').value;
+
+            // AJAX 요청
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/chat/chatbot/');
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var resultDiv = document.getElementById('result');
+                    resultDiv.innerHTML = xhr.responseText;
+                } else {
+                    console.error('Error:', xhr.status);
+                }
+            };
+
+            // 데이터 전송
+            var data = 'question=' + encodeURIComponent(question) + '&context=' + encodeURIComponent(context);
+            xhr.send(data);
+        }
+    </script>
+</body>
+</html>
